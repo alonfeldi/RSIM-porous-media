@@ -1,0 +1,30 @@
+.DS_Store
+Thumbs.db
+
+# MATLAB temporary and autosave files
+*.asv
+*.m~
+*.autosave
+slprj/
+
+# Large local datasets and generated outputs
+data/raw/
+data/processed/
+results/demo/
+results/models/
+
+# Large binary research artifacts should be added intentionally.
+*.mat
+!examples/data/*.mat
+
+*.fig
+*.mp4
+*.avi
+*.mov
+*.zip
+
+# Python helper caches
+__pycache__/
+*.pyc
+.venv/
+venv/
