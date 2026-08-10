@@ -1,8 +1,11 @@
 % RUN_SENSITIVITY_ANALYSIS Demo-scale sensitivity to number of sensors.
 %
-% This small version uses the example dataset. The original repository also
-% contains result folders named by sensor count, preserved under results/figures
-% and documented in docs/methodology.md.
+% This small version uses the example dataset. The original workspace also
+% contained full result folders named by sensor count; only small summary
+% figures from that run are committed under results/figures.
+% The paper's sensitivity analysis sets measurement noise to 0% to isolate the
+% effect of sensor count; adjust cfg.noiseFraction below if reproducing that
+% exact setting with full data.
 
 clear; clc; close all;
 
@@ -10,6 +13,7 @@ repoRoot = fileparts(fileparts(mfilename('fullpath')));
 addpath(genpath(fullfile(repoRoot, 'code')));
 
 cfg = defaultRsimConfig();
+cfg.noiseFraction = 0;
 sensorCounts = [1, 2, 5, 10, 15, 20, 30];
 
 data = loadExampleDataset(fullfile(repoRoot, 'examples', 'data', ...
@@ -23,6 +27,10 @@ meanCorrelation = zeros(numel(sensorCounts), 1);
 
 for i = 1:numel(sensorCounts)
     nSensors = sensorCounts(i);
+
+    % Re-select sensors for each sensor count using the same entropy ranking
+    % and spacing rule. This measures the information added by each larger
+    % sparse sampling layout.
     sensorLocations = selectSensorsEntropy(entropyMap, nSensors, ...
                                            cfg.minRowSeparation, ...
                                            cfg.minColSeparation);

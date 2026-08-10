@@ -8,6 +8,11 @@ function [metrics, summary] = evaluateReconstruction(trueFields, predictedFields
 % Outputs:
 %   metrics         - table with RMSE, relative RMSE, and correlation.
 %   summary         - struct with mean metrics.
+%
+% Paper connection:
+%   The manuscript reports mean RMSE-style error and mean correlation across
+%   test-set realizations. This function exposes both per-sample values and
+%   their means.
 
 if ndims(trueFields) == 2
     trueFields = reshape(trueFields, size(trueFields, 1), size(trueFields, 2), 1);

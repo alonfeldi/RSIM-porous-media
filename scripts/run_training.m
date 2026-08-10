@@ -2,6 +2,7 @@
 %
 % Put processed .mat or .dat contamination fields under data/processed before
 % running this script, or set dataRoot below to another copied dataset folder.
+% This script is the full-data analogue of scripts/run_demo.m.
 
 clear; clc; close all;
 
@@ -26,6 +27,8 @@ end
 [fields, keptFiles] = loadFieldStack(files, 'MaxFiles', cfg.training.maxFiles);
 fprintf('Loaded %d fields from %s.\n', size(fields, 3), dataRoot);
 
+% The full study computes the entropy map from the available simulated
+% concentration ensemble, then samples every realization at those locations.
 entropyMap = computeEntropyMap(fields, cfg.entropyBins);
 sensorLocations = selectSensorsEntropy(entropyMap, cfg.sensorCount, ...
                                        cfg.minRowSeparation, ...
@@ -34,6 +37,8 @@ sensorValues = extractSensorMeasurements(fields, sensorLocations, ...
                                          cfg.noiseFraction, cfg.randomSeed);
 idx = splitDatasetIndices(size(fields, 3), cfg.splitFractions, cfg.randomSeed);
 
+% The decoder learns concentration-field statistics from simulations. It does
+% not receive hydraulic conductivity or other simulator state variables.
 model = trainLinearRsimDecoder(sensorValues(idx.train, :), fields(:, :, idx.train), ...
                                'RidgeLambda', cfg.ridgeLambda, ...
                                'UseBias', cfg.useBias);

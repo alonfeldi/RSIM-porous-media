@@ -1,5 +1,14 @@
 # Data Format
 
+## Full Study Versus Committed Demo
+
+The manuscript reports a full synthetic database of 2,170 porous-media
+contamination realizations. That full dataset is not committed here because it
+is large research data.
+
+The committed example dataset is a compact subset that lets readers run the
+complete RSIM workflow quickly from a fresh clone.
+
 ## Example Dataset
 
 `examples/data/rsim_porous_media_demo.mat` contains a small subset copied from

@@ -14,6 +14,10 @@ function sensorLocations = selectSensorsEntropy(entropyMap, numSensors, ...
 %
 % Outputs:
 %   sensorLocations   - K x 2 matrix of [row, col] indices.
+%
+% Paper connection:
+%   This implements the high-entropy "boxing-out" placement strategy used to
+%   avoid redundant boreholes or probes that are too close together.
 
 if nargin < 3 || isempty(minRowSeparation)
     minRowSeparation = 20;

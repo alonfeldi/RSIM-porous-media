@@ -11,6 +11,10 @@ function entropyMap = computeEntropyMap(fields, numBins)
 %
 % Outputs:
 %   entropyMap - H x W local entropy map.
+%
+% Paper connection:
+%   The entropy map estimates how informative each potential sampling
+%   location is across the ensemble of simulated contamination fields.
 
 if nargin < 2 || isempty(numBins)
     numBins = 64;

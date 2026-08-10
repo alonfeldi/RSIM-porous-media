@@ -3,6 +3,7 @@
 % The comparison mirrors the original MATLAB scripts at a small demo scale:
 % Linear, Natural, Nearest, IDW, and RSIM. Kriging through PyKrige remains in
 % the legacy scripts because it depends on the local MATLAB-Python bridge.
+% The full paper also reports kriging baselines from the original run.
 
 clear; clc; close all;
 
@@ -33,6 +34,9 @@ model = trainLinearRsimDecoder(sensorValues(idx.train, :), fields(:, :, idx.trai
 sampleIndex = idx.test(1);
 truth = fields(:, :, sampleIndex);
 z = sensorValues(sampleIndex, :);
+
+% RSIM uses the learned decoder; the baseline methods use only the same sparse
+% sensor values and deterministic interpolation assumptions.
 rsimPrediction = predictLinearRsimDecoder(model, z);
 
 [comparisonMetrics, predictions] = compareInterpolationMethods(truth, ...

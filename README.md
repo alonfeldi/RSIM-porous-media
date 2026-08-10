@@ -1,111 +1,72 @@
 # RSIM Porous Media
 
-Research code accompanying a paper on reconstructing dense soil and
-groundwater contamination fields from sparse concentration measurements using
-RSIM: Ridiculously Simple Data-driven Interpolation Method.
+Computational companion repository for the manuscript:
 
-## Overview
+**Making the most from abrupt and sparse data: Data driven interpolation from
+sporadic sensors of contaminant concentration with extreme spatial gradients
+in saturated porous media**
 
-RSIM treats environmental interpolation as a signal reconstruction problem.
-For each simulated contamination field, only a small set of sensor
-measurements is provided to the reconstruction model. The model learns a
-linear decoder that maps the sparse sensor vector back to the full
-contamination map.
+Authors: Alon Feldman, Shai Kendler, Yaniv Edery, and Barak Fishbain.
 
-This repository focuses on heterogeneous porous-media transport. The physical
-simulator generates realistic plume shapes, including preferential pathways,
-stagnation regions, and sharp gradients. The RSIM reconstruction model itself
-receives only sparse concentration measurements.
+This repository contains the MATLAB code, example data, and documentation used
+to explain and reproduce the RSIM workflow for reconstructing dense
+contamination fields in heterogeneous saturated porous media from sparse
+concentration measurements.
 
-## Scientific Problem
+## Paper-To-Code Connection
 
-Given an unknown dense contamination field `f` over a spatial domain and a
-small sensor vector `z`, the goal is to learn a decoder `d` such that:
-
-```text
-z -> d(z) = f_hat
-```
-
-where `f_hat` approximates the full contamination field.
-
-## Method
+The paper formulates soil and groundwater interpolation as a signal
+reconstruction problem. A physical simulator creates dense contamination maps.
+Only sparse concentration values at selected sensor locations are given to the
+RSIM decoder. The decoder learns statistical relationships between the sparse
+sensor vector and the full contamination field.
 
 ```text
-porous-media simulator
+synthetic porous-media transport simulations
         |
         v
-ensemble of dense contamination fields
+dense contamination fields f_j
         |
         v
-local Shannon entropy sensor placement
+entropy-based sensor placement
         |
         v
-sparse concentration measurements
+sparse measurements z_j
         |
         v
-linear RSIM decoder
+linear RSIM decoder d(z)
         |
         v
-reconstructed dense field
+reconstructed field f_hat
         |
         v
-RMSE / correlation / visual comparison
+MRMSE / MCorr / visual comparison with baselines
 ```
 
-Important distinction: hydraulic conductivity is used by the physical
-simulator to generate the synthetic contamination fields. It is not an input
-to the RSIM reconstruction model in this repository.
+The most important methodological boundary is preserved in the code:
+hydraulic conductivity is used only by the physical simulator that generated
+the dataset. It is not an input to the RSIM reconstruction model.
 
-## Repository Structure
+For a detailed mapping from manuscript sections to repository files, see
+[docs/paper_to_code.md](docs/paper_to_code.md).
 
-```text
-code/
-  config/              Central experiment defaults
-  io/                  Data loading utilities
-  preprocessing/       Sensor measurement extraction and data splits
-  sensor_placement/    Entropy-map and sensor-selection code
-  reconstruction/      Linear RSIM decoder and original dense-network wrapper
-  evaluation/          Metrics and interpolation comparisons
-  visualization/       Plotting helpers
+## What Is In This Repository
 
-scripts/
-  run_demo.m
-  run_training.m
-  run_evaluation.m
-  run_compare_interpolation.m
-  run_sensitivity_analysis.m
+The publication-facing code is organized as a small MATLAB pipeline:
 
-examples/data/
-  rsim_porous_media_demo.mat
-  selected_sensors_30.mat
+- load dense contamination fields;
+- compute local Shannon entropy;
+- select or load sparse sensor locations;
+- extract sparse concentration measurements;
+- train a linear RSIM decoder;
+- reconstruct held-out dense fields;
+- evaluate RMSE/correlation;
+- compare against classical interpolation baselines;
+- plot entropy maps and reconstruction examples.
 
-docs/
-  methodology.md
-  data_format.md
-  original_code_inventory.md
-
-legacy/original_matlab/
-  Original MATLAB scripts copied from the author-provided folder
-
-results/figures/
-  Small copied summary artifacts from the existing research run
-```
-
-## Requirements
-
-The lightweight demo uses base MATLAB functionality such as `histcounts`,
-`scatteredInterpolant`, `table`, `writetable`, `tiledlayout`, and
-`exportgraphics`. A MATLAB release that supports `tiledlayout` and
-`exportgraphics` is recommended.
-
-Additional optional dependencies from the original scripts:
-
-- Deep Learning Toolbox: original dense fully-connected training workflow
-  using `trainNetwork`, `imageInputLayer`, `fullyConnectedLayer`, and
-  `depthToSpace2dLayer`.
-- Image Processing Toolbox: original montage utilities using `montage`.
-- Python with PyKrige: optional Universal/Ordinary Kriging comparisons through
-  MATLAB `pyrun`.
+The original exploratory MATLAB scripts are preserved under
+`legacy/original_matlab/` for traceability. They are not the recommended entry
+points for new users.
 
 ## Quick Start
 
@@ -115,8 +76,13 @@ Open MATLAB in the repository root and run:
 run("scripts/run_demo.m")
 ```
 
-The demo writes outputs under `results/demo/`, including metrics, a trained
-demo decoder, an entropy/sensor map, and a reconstruction comparison figure.
+The demo uses a committed example subset and writes outputs to
+`results/demo/`:
+
+- `demo_metrics.csv`
+- `linear_rsim_demo_model.mat`
+- `demo_entropy_sensors.png`
+- `demo_reconstruction.png`
 
 For a non-visual smoke test:
 
@@ -124,39 +90,119 @@ For a non-visual smoke test:
 run("tests/test_core_functions.m")
 ```
 
+## Repository Structure
+
+```text
+code/
+  config/              Standard experiment parameters
+  io/                  Loading .mat and .dat contamination fields
+  preprocessing/       Train/validation/test splits and sensor extraction
+  sensor_placement/    Local Shannon entropy and sensor placement
+  reconstruction/      Linear RSIM decoder and original network wrapper
+  evaluation/          MRMSE, correlation, IDW, interpolation comparison
+  visualization/       Entropy and reconstruction figures
+
+scripts/
+  run_demo.m                   Small end-to-end example
+  run_training.m               Train on copied full research data
+  run_evaluation.m             Evaluate the demo workflow
+  run_compare_interpolation.m  Compare RSIM with classical interpolation
+  run_sensitivity_analysis.m   Sensor-count sensitivity demo
+
+examples/data/
+  rsim_porous_media_demo.mat   Small committed demo dataset
+  selected_sensors_30.mat      Sensor coordinates copied from original work
+
+docs/
+  paper_to_code.md             Manuscript section to code mapping
+  methodology.md               Scientific and implementation notes
+  data_format.md               Data variables and dimensions
+  original_code_inventory.md   What was copied from the original workspace
+
+legacy/original_matlab/
+  Original research scripts copied without modifying the source folder
+
+results/figures/
+  Small summary artifacts copied from the existing research run
+```
+
 ## Data
 
-The committed example dataset is intentionally small:
+The full manuscript experiments used a larger synthetic dataset generated by a
+porous-media transport simulator. The paper states `m = 2,170` realizations,
+a `300 x 120` grid, 30 sensors, 10% multiplicative Gaussian measurement noise,
+20-grid-cell sensor spacing, and a 0.7/0.1/0.2 train/validation/test split
+unless otherwise stated.
 
-- `examples/data/rsim_porous_media_demo.mat` contains 80 dense fields of size
-  300 x 120.
-- `examples/data/selected_sensors_30.mat` contains the 30 sensor locations from
-  the original workspace.
+The repository commits only a small example subset:
 
-Large raw/processed research datasets should be copied into `data/raw/` or
-`data/processed/` locally. These folders are ignored by Git to avoid publishing
-large generated files by accident.
+- `examples/data/rsim_porous_media_demo.mat`: 80 dense contamination fields of
+  size `300 x 120`.
+- `examples/data/selected_sensors_30.mat`: the 30 sensor locations copied from
+  the original research workspace.
+
+Large raw or processed datasets should be copied locally into:
+
+```text
+data/raw/
+data/processed/
+```
+
+Those folders are ignored by Git. This avoids publishing large generated data
+or local experiment artifacts by accident.
 
 See [docs/data_format.md](docs/data_format.md) for variable names and
 dimensions.
 
-## Reproducing Experiments
+## Reproducing Workflows
 
-- `scripts/run_demo.m`: fast end-to-end RSIM reconstruction on example data.
-- `scripts/run_training.m`: train the linear RSIM decoder on copied research
-  data under `data/processed/`.
-- `scripts/run_evaluation.m`: evaluate the demo workflow and write metrics.
-- `scripts/run_compare_interpolation.m`: compare RSIM with Linear, Natural,
-  Nearest, and IDW interpolation on a held-out demo field.
-- `scripts/run_sensitivity_analysis.m`: demo-scale sensitivity to number of
-  sensors.
+Use the scripts below from the repository root:
 
-The original exploratory MATLAB scripts are preserved in
-`legacy/original_matlab/` for traceability. See
-[docs/original_code_inventory.md](docs/original_code_inventory.md).
+```matlab
+run("scripts/run_demo.m")
+run("scripts/run_compare_interpolation.m")
+run("scripts/run_sensitivity_analysis.m")
+```
+
+For larger copied research data:
+
+```matlab
+run("scripts/run_training.m")
+```
+
+`scripts/run_training.m` expects copied data under `data/processed/`. Do not
+run publication scripts directly on the original OneDrive research folder when
+the script writes outputs.
+
+## Requirements
+
+The lightweight publication pipeline uses base MATLAB functionality including
+`histcounts`, `scatteredInterpolant`, `table`, `writetable`, `tiledlayout`, and
+`exportgraphics`. A MATLAB release supporting `tiledlayout` and
+`exportgraphics` is recommended.
+
+Optional dependencies preserved from the original scripts:
+
+- Deep Learning Toolbox for the original dense fully-connected decoder
+  workflow using `trainNetwork`, `imageInputLayer`, `fullyConnectedLayer`, and
+  `depthToSpace2dLayer`.
+- Image Processing Toolbox for legacy montage utilities using `montage`.
+- Python with PyKrige for optional Universal and Ordinary Kriging comparisons
+  through MATLAB `pyrun`.
+
+## Scientific Notes
+
+- RSIM learns from simulated concentration fields, not from hydraulic
+  conductivity fields.
+- Sensor placement is based on local Shannon entropy and minimum spacing.
+- Sparse measurements can include multiplicative Gaussian noise.
+- The publication-facing implementation uses an explicit linear decoder for
+  readability.
+- The original MATLAB script used a single fully-connected layer and froze its
+  bias term at zero. The current default preserves that behavior with
+  `cfg.useBias = false`.
 
 ## Citation
 
-If you use this repository, please cite the accompanying paper once the final
-bibliographic information is available. A software citation placeholder is
-provided in [CITATION.cff](CITATION.cff).
+If you use this repository, cite the accompanying paper and this software
+repository. See [CITATION.cff](CITATION.cff).

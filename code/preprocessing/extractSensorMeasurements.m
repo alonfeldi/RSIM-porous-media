@@ -10,6 +10,11 @@ function sensorValues = extractSensorMeasurements(fields, sensorLocations, ...
 %
 % Outputs:
 %   sensorValues    - N x K matrix, one sparse measurement vector per field.
+%
+% Paper connection:
+%   This is the encoder e(f): it observes the dense field only at the selected
+%   sensor locations Omega_s and optionally applies multiplicative Gaussian
+%   measurement noise.
 
 if nargin < 3 || isempty(noiseFraction)
     noiseFraction = 0;
@@ -45,6 +50,8 @@ for i = 1:nFields
 end
 
 if noiseFraction > 0
+    % Multiplicative noise follows z = f(omega) * (1 + eta), with
+    % eta distributed as zero-mean Gaussian noise.
     sensorValues = sensorValues + ...
         noiseFraction .* randn(size(sensorValues)) .* sensorValues;
 end

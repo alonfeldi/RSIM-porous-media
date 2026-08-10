@@ -1,5 +1,24 @@
 # Methodology Notes
 
+These notes document the scientific decisions implemented in the publication
+code and how they relate to the manuscript.
+
+## Manuscript Defaults
+
+Unless otherwise stated, the manuscript uses:
+
+```text
+realizations: 2,170 simulated contamination maps
+grid: 300 x 120 cells
+sensors: 30
+measurement noise: 10% multiplicative Gaussian noise
+sensor spacing: 20 cells horizontally and vertically
+split: 0.7 train / 0.1 validation / 0.2 test
+```
+
+The committed demo dataset is smaller by design. It is used to demonstrate the
+workflow, not to reproduce the full manuscript table.
+
 ## Scientific Pipeline
 
 The repository is organized around five separate stages:
@@ -19,6 +38,9 @@ The repository is organized around five separate stages:
 Hydraulic conductivity belongs to stage 1 only. It is not passed into the RSIM
 decoder.
 
+The code keeps this boundary explicit: no reconstruction function accepts a
+conductivity field as an input.
+
 ## Sensor Placement
 
 The original `calc_entropy.m` script computes one entropy value per grid cell
@@ -31,6 +53,10 @@ The spacing rule intentionally preserves the original behavior. A candidate is
 rejected when it is closer than both the vertical and horizontal thresholds to
 an already selected sensor. A difference equal to the threshold is accepted,
 because the original code used the strict `<` operator.
+
+The demo loads stored research sensor locations when they are present in the
+example data. Entropy is still computed in the demo so readers can see the
+information map behind the placement strategy.
 
 ## Reconstruction Model
 
@@ -67,6 +93,10 @@ Classical interpolation comparison is implemented in:
 
 The demo comparison includes Linear, Natural, Nearest, IDW, and RSIM. The
 legacy scripts retain the optional PyKrige Universal/Ordinary Kriging calls.
+
+The manuscript also mentions Cubic interpolation. A cubic baseline should be
+added to the refactored comparison only after confirming the exact settings
+used in the full-paper run.
 
 ## Ambiguities Preserved or Flagged
 

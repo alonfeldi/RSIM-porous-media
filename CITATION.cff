@@ -5,7 +5,26 @@ type: software
 authors:
   - family-names: "Feldman"
     given-names: "Alon"
+  - family-names: "Kendler"
+    given-names: "Shai"
+  - family-names: "Edery"
+    given-names: "Yaniv"
+  - family-names: "Fishbain"
+    given-names: "Barak"
 repository-code: "https://github.com/alonfeldi/RSIM-porous-media"
 date-released: "2026-08-10"
 license: "MIT"
 abstract: "MATLAB research code for reconstructing dense porous-media contamination fields from sparse measurements using RSIM."
+preferred-citation:
+  type: article
+  title: "Making the most from abrupt and sparse data: Data driven interpolation from sporadic sensors of contaminant concentration with extreme spatial gradients in saturated porous media"
+  authors:
+    - family-names: "Feldman"
+      given-names: "Alon"
+    - family-names: "Kendler"
+      given-names: "Shai"
+    - family-names: "Edery"
+      given-names: "Yaniv"
+    - family-names: "Fishbain"
+      given-names: "Barak"
+  year: 2026
